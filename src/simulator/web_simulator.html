@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FluoriVenger Interactive Simulator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        
+        .tab {
+            padding: 15px 30px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.1em;
+            color: #666;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+        
+        .tab:hover {
+            color: #2a5298;
+        }
+        
+        .tab.active {
+            color: #2a5298;
+            border-bottom-color: #2a5298;
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .input-group {
+            margin-bottom: 25px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #2a5298;
+        }
+        
+        .input-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 20px;
+        }
+        
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .button:active {
+            transform: translateY(0);
+        }
+        
+        .results {
+            margin-top: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 5px solid #2a5298;
+        }
+        
+        .results h3 {
+            color: #2a5298;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .metric-label {
+            font-weight: 600;
+            color: #555;
+        }
+        
+        .metric-value {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2a5298;
+        }
+        
+        .metric-value.positive {
+            color: #28a745;
+        }
+        
+        .metric-value.warning {
+            color: #ffc107;
+        }
+        
+        .metric-value.danger {
+            color: #dc3545;
+        }
+        
+        .chart-container {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+            transition: width 1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .comparison-table th,
+        .comparison-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .comparison-table th {
+            background: #2a5298;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .comparison-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .highlight {
+            background: #fff3cd !important;
+            font-weight: bold;
+        }
+        
+        .info-box {
+            padding: 20px;
+            background: #e7f3ff;
+            border-left: 5px solid #2196F3;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .info-box h4 {
+            color: #1976D2;
+            margin-bottom: 10px;
+        }
+        
+        .footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💧 FluoriVenger Simulator</h1>
+            <p>Interactive Performance & Impact Calculator</p>
+        </div>
+        
+        <div class="content">
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('filter')">Filter Performance</button>
+                <button class="tab" onclick="showTab('cost')">Cost-Benefit</button>
+                <button class="tab" onclick="showTab('health')">Health Impact</button>
+                <button class="tab" onclick="showTab('business')">Business Model</button>
+                <button class="tab" onclick="showTab('comparison')">Comparison</button>
+            </div>
+            
+            <!-- Filter Performance Tab -->
+            <div id="filter" class="tab-content active">
+                <div class="info-box">
+                    <h4>🔬 Filter Performance Simulator</h4>
+                    <p>Calculate fluoride removal efficiency and filter lifespan based on your water conditions.</p>
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Input Fluoride Level (mg/L)</label>
+                        <input type="number" id="inputFluoride" value="10" min="2" max="20" step="0.5">
+                    </div>
+                    <div class="input-group">
+                        <label>Daily Water Usage (Liters)</label>
+                        <input type="number" id="dailyUsage" value="20" min="5" max="100" step="5">
+                    </div>
+                    <div class="input-group">
+                        <label>Simulation Days</label>
+                        <input type="number" id="simDays" value="180" min="30" max="365" step="30">
+                    </div>
+                </div>
+                
+                <button class="button" onclick="calculateFilterPerformance()">Calculate Performance</button>
+                
+                <div id="filterResults" class="results" style="display:none;">
+                    <h3>📊 Performance Results</h3>
+                    <div class="metric">
+                        <span class="metric-label">Initial Removal Efficiency</span>
+                        <span class="metric-value positive" id="initialEfficiency">-</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Current Removal Efficiency</span>
+                        <span class="metric-value" id="currentEfficiency">-</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Output Fluoride Level</span>
+                        <span class="metric-value" id="outputFluoride">-</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">WHO Standard (< 1.5 mg/L)</span>
+                        <span class="metric-value" id="whoCompliance">-</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Filter Status</span>
+                        <span class="metric-value" id="filterStatus">-</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Estimated Lifespan</span>
+                        <span class="metric-value" id="filterLifespan">-</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Cost-Benefit Tab -->
+            <div id="cost" class="tab-content">
+                <div class="info-box">
+                    <h4>💰 Cost-Benefit Analysis</h4>
+                    <p>Compare FluoriVenger costs with alternatives and calculate your savings.</p>
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Household Size</label>
+                        <input type="number" id="householdSize" value="5" min="1" max="15">
+                    </div>
+                    <div class="input-group">
+                        <label>Analysis Period (Years)</label>
+                        <input type="number" id="analysisYears" value="5" min="1" max="10">
+                    </div>
+                    <div class="input-group">
+                        <label>Input Fluoride (mg/L)</label>
+                        <input type="number" id="costFluoride" value="10" min="2" max="20" step="0.5">
+                    </div>
+                </div>
+                
+                <button class="button" onclick="calculateCostBenefit()">Calculate Savings</button>
+                
+                <div id="costResults" class="results" style="display:none;">
+                    <h3>💵 Cost Analysis Results</h3>
+                    <div class="metric">
+                        <span class="metric-label">FluoriVenger Total Cost</span>
+                        <span class="metric-value" id="fluorivCost">-</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Bottled Water Cost (Alternative)</span>
+                        <span class="metric-value danger" id="bottledCost">-</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Medical Costs Avoided</span>
+                        <span class="metric-value positive" id="medicalSavings">-</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Total Savings</span>
+                        <span class="metric-value positive" id="totalSavings">-</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Return on Investment (ROI)</span>
+                        <span class="metric-value positive" id="roi">-</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Payback Period</span>
+                        <span class="metric-value" id="payback">-</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Health Impact Tab -->
+            <div id="health" class="tab-content">
+                <div class="info-box">
+                    <h4>🏥 Health Impact Calculator</h4>
+                    <p>Estimate the health benefits and fluorosis cases prevented.</p>
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Number of Households</label>
+                        <input type="number" id="numHouseholds" value="1000" min="1" max="100000" step="100">
+                    </div>
+                    <div class="input-group">
+                        <label>Average Household Size</label>
+                        <input type="number" id="avgHouseholdSize" value="5" min="1" max="15">
+                    </div>
+                    <div class="input-group">
+                        <label>Analysis Period (Years)</label>
+                        <input type="number" id="healthYears" value="3" min="1" max="10">
+                    </div>
+                </div>
+                
+                <button class="button" onclick="calculateHealthImpact()">Calculate Impact</button>
+                
+                <div id="healthResults" class="results" style="display:none;">
+                    <h3>🌟 Health Impact Results</h3>
+                    <div class="metric">
+                        <span class="metric-label">Total People Reached</span>
+                        <span class="metric-value positive" id="peopleReached">-</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Children Protected</span>
+                        <span class="metric-value positive" id="childrenProtected">-</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Fluorosis Cases Prevented</span>
+                        <span class="metric-value positive" id="casesPrevented">-</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Healthcare Cost Savings</span>
+                        <span class="metric-value positive" id="healthcareSavings">-</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Fluoride Removed (Tons)</span>
+                        <span class="metric-value positive" id="fluorideRemoved">-</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Plastic Bottles Avoided</span>
+                        <span class="metric-value positive" id="bottlesAvoided">-</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Business Model Tab -->
+            <div id="business" class="tab-content">
+                <div class="info-box">
+                    <h4>📈 Business Growth Projections</h4>
+                    <p>Model business growth and revenue projections over time.</p>
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label>Initial Customers (Year 1)</label>
+                        <input type="number" id="initialCustomers" value="10000" min="100" max="100000" step="1000">
+                    </div>
+                    <div class="input-group">
+                        <label>Annual Growth Rate</label>
+                        <select id="growthRate">
+                            <option value="1.3">Conservative (30%)</option>
+                            <option value="1.5" selected>Base Case (50%)</option>
+                            <option value="2.0">Optimistic (100%)</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Projection Period (Years)</label>
+                        <input type="number" id="projectionYears" value="5" min="1" max="10">
+                    </div>
+                </div>
+                
+                <button class="button" onclick="calculateBusiness()">Project Growth</button>
+                
+                <div id="businessResults" class="results" style="display:none;">
+                    <h3>🚀 Business Projections</h3>
+                    <div id="businessMetrics"></div>
+                </div>
+            </div>
+            
+            <!-- Comparison Tab -->
+            <div id="comparison" class="tab-content">
+                <div class="info-box">
+                    <h4>⚖️ Solution Comparison</h4>
+                    <p>Compare FluoriVenger with alternative water treatment options.</p>
+                </div>
+                
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Solution</th>
+                            <th>Initial Cost</th>
+                            <th>Annual Cost</th>
+                            <th>Fluoride Removal</th>
+                            <th>Electricity</th>
+                            <th>Cost/Liter</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="highlight">
+                            <td><strong>FluoriVenger</strong></td>
+                            <td>KES 700</td>
+                            <td>KES 700</td>
+                            <td>90%</td>
+                            <td>No</td>
+                            <td>KES 0.05</td>
+                        </tr>
+                        <tr>
+                            <td>Activated Alumina</td>
+                            <td>KES 4,000</td>
+                            <td>KES 4,000</td>
+                            <td>95%</td>
+                            <td>No</td>
+                            <td>KES 0.27</td>
+                        </tr>
+                        <tr>
+                            <td>Reverse Osmosis</td>
+                            <td>KES 35,000</td>
+                            <td>KES 8,000</td>
+                            <td>98%</td>
+                            <td>Yes</td>
+                            <td>KES 0.55</td>
+                        </tr>
+                        <tr>
+                            <td>Bottled Water</td>
+                            <td>KES 0</td>
+                            <td>KES 36,500</td>
+                            <td>100%</td>
+                            <td>No</td>
+                            <td>KES 5.00</td>
+                        </tr>
+                        <tr>
+                            <td>No Treatment</td>
+                            <td>KES 0</td>
+                            <td>KES 45,000*</td>
+                            <td>0%</td>
+                            <td>No</td>
+                            <td>KES 0</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <p style="margin-top: 20px; color: #666; font-size: 0.9em;">
+                    * Medical costs for treating fluorosis (estimated for family of 5)
+                </p>
+                
+                <div class="results" style="margin-top: 30px;">
+                    <h3>✅ FluoriVenger Advantages</h3>
+                    <div class="metric">
+                        <span class="metric-label">vs. Activated Alumina</span>
+                        <span class="metric-value positive">82% Cheaper</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">vs. Reverse Osmosis</span>
+                        <span class="metric-value positive">98% Cheaper</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">vs. Bottled Water</span>
+                        <span class="metric-value positive">99% Cheaper</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Local Production</span>
+                        <span class="metric-value positive">100% Kenyan</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Environmental Impact</span>
+                        <span class="metric-value positive">Waste Upcycling</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p><strong>FluoriVenger</strong> - Transforming Waste into Wellness 💧✨</p>
+            <p>For D&S Hackathon | Contact: info@fluorivenger.ke</p>
+        </div>
+    </div>
+    
+    <script>
+        function showTab(tabName) {
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Remove active class from all tab buttons
+            const tabButtons = document.querySelectorAll('.tab');
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        function calculateFilterPerformance() {
+            const inputFluoride = parseFloat(document.getElementById('inputFluoride').value);
+            const dailyUsage = parseFloat(document.getElementById('dailyUsage').value);
+            const days = parseInt(document.getElementById('simDays').value);
+            
+            // Calculate efficiency decay
+            const initialEfficiency = 0.95;
+            const decayRate = 0.0015;
+            const currentEfficiency = Math.max(0.85, initialEfficiency * Math.exp(-decayRate * days));
+            
+            // Calculate output fluoride
+            const outputFluoride = inputFluoride * (1 - currentEfficiency);
+            
+            // Determine status
+            let status, statusClass;
+            if (outputFluoride <= 1.5) {
+                if (currentEfficiency >= 0.90) {
+                    status = "Excellent ✓";
+                    statusClass = "positive";
+                } else if (currentEfficiency >= 0.87) {
+                    status = "Good ✓";
+                    statusClass = "positive";
+                } else {
+                    status = "Fair ⚠";
+                    statusClass = "warning";
+                }
+            } else {
+                status = "Replace Now ✗";
+                statusClass = "danger";
+            }
+            
+            // Estimate lifespan
+            let lifespan;
+            if (inputFluoride < 4) {
+                lifespan = "12 months";
+            } else if (inputFluoride < 8) {
+                lifespan = "9 months";
+            } else {
+                lifespan = "6 months";
+            }
+            
+            // Display results
+            document.getElementById('initialEfficiency').textContent = (initialEfficiency * 100).toFixed(1) + "%";
+            document.getElementById('currentEfficiency').textContent = (currentEfficiency * 100).toFixed(1) + "%";
+            document.getElementById('outputFluoride').textContent = outputFluoride.toFixed(2) + " mg/L";
+            
+            const whoCompliance = outputFluoride <= 1.5 ? "✓ Compliant" : "✗ Non-Compliant";
+            document.getElementById('whoCompliance').textContent = whoCompliance;
+            document.getElementById('whoCompliance').className = "metric-value " + (outputFluoride <= 1.5 ? "positive" : "danger");
+            
+            document.getElementById('filterStatus').textContent = status;
+            document.getElementById('filterStatus').className = "metric-value " + statusClass;
+            
+            document.getElementById('filterLifespan').textContent = lifespan;
+            
+            document.getElementById('filterResults').style.display = 'block';
+        }
+        
+        function calculateCostBenefit() {
+            const householdSize = parseInt(document.getElementById('householdSize').value);
+            const years = parseInt(document.getElementById('analysisYears').value);
+            const fluoride = parseFloat(document.getElementById('costFluoride').value);
+            
+            // Calculate filter lifespan
+            let filterLifespanMonths;
+            if (fluoride < 4) filterLifespanMonths = 12;
+            else if (fluoride < 8) filterLifespanMonths = 9;
+            else filterLifespanMonths = 6;
+            
+            // FluoriVenger costs
+            const filtersNeeded = Math.ceil((years * 12) / filterLifespanMonths);
+            const fluorivCost = filtersNeeded * 700;
+            
+            // Bottled water alternative
+            const dailyWater = householdSize * 4;
+            const bottledCost = (dailyWater / 20) * 5 * 365 * years;
+            
+            // Medical costs avoided
+            const affectedPeople = Math.ceil(householdSize * 0.6);
+            const medicalCosts = affectedPeople * 15000 * years;
+            
+            // Calculate savings
+            const savingsVsBottled = bottledCost - fluorivCost;
+            const totalSavings = savingsVsBottled + medicalCosts;
+            const roi = (totalSavings / fluorivCost) * 100;
+            const paybackMonths = (fluorivCost / (totalSavings / (years * 12)));
+            
+            // Display results
+            document.getElementById('fluorivCost').textContent = "KES " + fluorivCost.toLocaleString();
+            document.getElementById('bottledCost').textContent = "KES " + bottledCost.toLocaleString();
+            document.getElementById('medicalSavings').textContent = "KES " + medicalCosts.toLocaleString();
+            document.getElementById('totalSavings').textContent = "KES " + totalSavings.toLocaleString();
+            document.getElementById('roi').textContent = roi.toFixed(0) + "%";
+            document.getElementById('payback').textContent = paybackMonths.toFixed(1) + " months";
+            
+            document.getElementById('costResults').style.display = 'block';
+        }
+        
+        function calculateHealthImpact() {
+            const households = parseInt(document.getElementById('numHouseholds').value);
+            const avgSize = parseFloat(document.getElementById('avgHouseholdSize').value);
+            const years = parseInt(document.getElementById('healthYears').value);
+            
+            const totalPeople = households * avgSize;
+            const children = Math.floor(totalPeople * 0.4);
+            
+            // Cases prevented (60% baseline, 5% after intervention)
+            const casesPrevented = Math.floor(totalPeople * (0.60 - 0.05));
+            
+            // Healthcare savings
+            const healthcareSavings = casesPrevented * 15000 * years;
+            
+            // Fluoride removed
+            const dailyWater = 20;
+            const avgFluoride = 10;
+            const removalEfficiency = 0.90;
+            const days = years * 365;
+            const fluorideRemovedKg = (households * dailyWater * avgFluoride * removalEfficiency * days) / 1000000;
+            const fluorideRemovedTons = fluorideRemovedKg / 1000;
+            
+            // Bottles avoided
+            const bottlesAvoided = Math.floor(households * dailyWater / 20 * days * 0.3);
+            
+            // Display results
+            document.getElementById('peopleReached').textContent = totalPeople.toLocaleString();
+            document.getElementById('childrenProtected').textContent = children.toLocaleString();
+            document.getElementById('casesPrevented').textContent = casesPrevented.toLocaleString();
+            document.getElementById('healthcareSavings').textContent = "KES " + healthcareSavings.toLocaleString();
+            document.getElementById('fluorideRemoved').textContent = fluorideRemovedTons.toFixed(2);
+            document.getElementById('bottlesAvoided').textContent = bottlesAvoided.toLocaleString();
+            
+            document.getElementById('healthResults').style.display = 'block';
+        }
+        
+        function calculateBusiness() {
+            const initialCustomers = parseInt(document.getElementById('initialCustomers').value);
+            const growthRate = parseFloat(document.getElementById('growthRate').value);
+            const years = parseInt(document.getElementById('projectionYears').value);
+            
+            let html = '';
+            let cumulativeCustomers = 0;
+            let cumulativeRevenue = 0;
+            
+            for (let year = 1; year <= years; year++) {
+                const newCustomers = year === 1 ? initialCustomers : Math.floor(initialCustomers * Math.pow(growthRate, year - 1));
+                cumulativeCustomers += newCustomers;
+                
+                const replacementCustomers = year > 1 ? Math.floor(cumulativeCustomers * 0.8) : 0;
+                const revenue = (newCustomers + replacementCustomers) * 700;
+                cumulativeRevenue += revenue;
+                
+                html += `
+                    <div class="metric">
+                        <span class="metric-label">Year ${year} - Customers</span>
+                        <span class="metric-value">${cumulativeCustomers.toLocaleString()}</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Year ${year} - Revenue</span>
+                        <span class="metric-value positive">KES ${(revenue / 1000000).toFixed(2)}M</span>
+                    </div>
+                `;
+            }
+            
+            html += `
+                <div class="metric" style="margin-top: 20px; background: #e7f3ff;">
+                    <span class="metric-label"><strong>Total Cumulative Customers</strong></span>
+                    <span class="metric-value positive"><strong>${cumulativeCustomers.toLocaleString()}</strong></span>
+                </div>
+                <div class="metric" style="background: #e7f3ff;">
+                    <span class="metric-label"><strong>Total Cumulative Revenue</strong></span>
+                    <span class="metric-value positive"><strong>KES ${(cumulativeRevenue / 1000000).toFixed(2)}M</strong></span>
+                </div>
+            `;
+            
+            document.getElementById('businessMetrics').innerHTML = html;
+            document.getElementById('businessResults').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
