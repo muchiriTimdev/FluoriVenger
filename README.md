@@ -161,9 +161,8 @@ This process is:
 
 ## 📞 Contact
 
-- **Email**: info@fluorivenger.ke
-- **Phone**: +254 XXX XXX XXX
-- **Website**: www.fluorivenger.ke
+- **Email**: muchiritimothygitau@gmail.com
+- **Website**: www.muchiritimothyuprise.com
 - **Address**: Nairobi, Kenya
 
 ## 📄 License
