@@ -21,25 +21,7 @@ Instead of expensive imported activated alumina or reverse osmosis systems, Fluo
 **Power**: Solar pumps (leveraging D&S existing product line)  
 **Result**: 90%+ fluoride removal at <10% cost of imported solutions
 
-## 🏆 Why This Wins
 
-### 1. **Impact** ⭐⭐⭐⭐⭐
-- Directly tackles rampant fluorosis in Rift Valley
-- Targets 3+ million people in high-fluoride zones
-- Prevents dental and skeletal fluorosis in children
-- Reduces healthcare costs for affected communities
-
-### 2. **Feasibility** ⭐⭐⭐⭐⭐
-- Materials are 100% local - no foreign supply chain
-- Leverages existing D&S solar pump infrastructure
-- Partnership with Kenya Meat Commission already established
-- Simple manufacturing process suitable for local production
-
-### 3. **Scalability** ⭐⭐⭐⭐⭐
-- Each county abattoir can supply bone char
-- Decentralized production model
-- Replicable across East Africa
-- Circular economy model (waste → value)
 
 ## 🔬 Technical Specifications
 
