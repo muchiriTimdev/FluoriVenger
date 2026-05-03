@@ -74,7 +74,7 @@ FluoriVenger/
 ### For Partners
 1. See partnership opportunities in `partnerships/`
 2. Review business model in `docs/business/business-model.md`
-3. Contact: info@fluorivenger.ke
+3. Contact: www.muchiritimothyuprise.com
 
 ### For Researchers
 1. Access research data in `data/`
